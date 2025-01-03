@@ -25,7 +25,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('projects')
+            ->path('admin')
             ->login()
             ->colors([
                 'primary' => Color::Amber,
@@ -53,6 +53,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->registration();
     }
 }

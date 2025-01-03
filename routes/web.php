@@ -1,6 +1,6 @@
 <?php
 
-use App\Filament\Pages\Projects\AddProject;
+use App\Filament\Pages\AddMember;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -8,6 +8,6 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/add-project', AddProject::class)->name('projects.add');
+    Route::get('/projects/members/invite/{projectId}', AddMember::class)->name('projects.add-member');
 });
 
