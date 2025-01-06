@@ -19,9 +19,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
-        // Project::class => ProjectPolicy::class,
-        // Task::class => TaskPolicy::class,
-        // ProjectsUsers::class => ProjectsUsersPolicy::class,
+        //
     ];
 
     /**
@@ -31,6 +29,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // $this->registerPolicies();
+        //
     }
 }
