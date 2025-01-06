@@ -53,16 +53,11 @@ Aplikacja pozwala na zarządzanie projektami, zadaniami oraz użytkownikami.
    ```bash
    composer install
    ```
-4. Skopiuj plik konfiguracyjny i skonfiguruj środowisko:
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
-   ```
-5. Migracja bazy danych:
+4. Migracja bazy danych:
    ```bash
    php artisan migrate
    ```
-6. Uruchom aplikację lokalnie:
+5. Uruchom aplikację lokalnie:
    ```bash
    php artisan serve
    ```
