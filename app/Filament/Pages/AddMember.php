@@ -18,6 +18,8 @@ class AddMember extends Page
 
     protected static string $view = 'filament.pages.add-member';
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public $email;
     public $projectId;
 
@@ -91,6 +93,16 @@ class AddMember extends Page
         if (!$user) {
             Notification::make()
             ->title('Użytkownik o podanym adresie e-mail nie istnieje!')
+            ->danger()
+            ->send();
+            return;
+        }
+
+        $pr_user = ProjectsUsers::where('project_id', $projectId)->where('user_id', $user->id)->first();
+
+        if ($pr_user) {
+            Notification::make()
+            ->title('Użytkownik o podanym adresie e-mail nie może zostać zaproszony!')
             ->danger()
             ->send();
             return;

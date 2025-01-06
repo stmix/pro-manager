@@ -12,6 +12,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -22,6 +23,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class TaskResource extends Resource
 {
@@ -35,27 +37,52 @@ class TaskResource extends Resource
     {
         return $form->schema([
 
-            TextInput::make('name')
-                ->label('Nazwa')
-                ->rules(['min:3', 'max:255'])
-                ->required(),
 
-            TextInput::make('description')
-                ->label('Opis')
-                ->rules(['min:3', 'max:10000'])
-                ->required(),
+            Grid::make(1)->schema([
+                TextInput::make('name')
+                    ->label('Nazwa')
+                    ->rules(['min:3', 'max:255'])
+                    ->required(),
+
+                
+                RichEditor::make('description')
+                    ->label('Opis')
+                    ->rules(['min:3', 'max:10000'])
+                    ->required()
+                    ->toolbarButtons([
+                        'bold', 'italic', 'underline', 'strike', 'link', 'ordered-list', 'unordered-list', 'blockquote',
+                        'code', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'align-left', 'align-center', 'align-right',
+                        'image', 'video',
+                    ]),
+                ]),
 
             DatePicker::make('start_date')
                 ->displayFormat('d/m/Y')
                 ->label('Data rozpoczęcia')
                 ->default(Carbon::now())
                 ->required()
-                ->native(false),
+                ->native(false)
+                ->reactive()
+                ->afterStateUpdated(function (callable $get, callable $set, $state) {
+                    $currentDate = Carbon::now();
+                    
+                    $newEndDate = $state && Carbon::parse($state)->gt($currentDate)
+                        ? Carbon::parse($state)
+                        : $currentDate;
+            
+                    $set('end_date', $newEndDate->format('Y-m-d'));
+                }),
 
             DatePicker::make('end_date')
                 ->displayFormat('d/m/Y')
                 ->label('Data zakończenia')
-                ->placeholder('Data planowanego zakończenia projektu')
+                ->placeholder('Data planowanego zakończenia zadania')
+                ->reactive()
+                ->minDate(fn (callable $get) => 
+                    $get('start_date') 
+                        ? Carbon::parse($get('start_date'))->startOfDay()->toDateString() 
+                        : null
+                )
                 ->nullable()
                 ->native(false),
 
@@ -65,23 +92,31 @@ class TaskResource extends Resource
 
                     if ($projectId) {
                         $project = Project::find($projectId);
-                        
-                        if($project)
-                            return $project->number + 1;
+
+                        if ($project) {
+                            $maxTaskNumber = $project->tasks()->max('number');
+
+                            return $maxTaskNumber ? $maxTaskNumber + 1 : 1;
+                        }
                     }
-    
                     return 1;
                 }),
+
 
                 Hidden::make('project_id')
                 ->default(function () {
                     $projectId = request()->get('project_id');
-
                     if ($projectId) {
                             return $projectId;
                     }
     
                     return null;
+                }),
+
+                Hidden::make('author')
+                ->default(function () {
+                    $user = Auth::user()->id;
+                    return $user;
                 }),
 
                 Select::make('status')
@@ -93,9 +128,7 @@ class TaskResource extends Resource
                         $project = Project::find($projectId);
                         $statuses = [];
                         
-                        // Zakładając, że 'name' to wartość, którą chcesz przechować w bazie
                         foreach($project->allowed_statuses as $st) {
-                            // Klucz jest wymagany przez Select, ale wartość to 'name'
                             $statuses[$st['name']] = $st['name'];
                         }
 
@@ -103,8 +136,7 @@ class TaskResource extends Resource
                     }
 
                     return [];
-                })
-                ->required(),
+                }),
 
         ]);
     }
@@ -137,7 +169,8 @@ class TaskResource extends Resource
                 ->label('Nazwa'),
 
                 TextEntry::make('description')
-                ->label('Opis'),
+                ->label('Opis')
+                ->html(),
 
                 TextEntry::make('start_date')
                 ->label('Data rozpoczęcia')
