@@ -62,6 +62,28 @@ Aplikacja pozwala na zarządzanie projektami, zadaniami oraz użytkownikami.
    php artisan serve
    ```
 
+## Struktura projektu
+### Modele
+ - Project
+ - Task
+ - User
+ - ProjectUsers - dla relacji ManyToMany uzytkownicy-projekty
+
+### Resources
+ - ProjectResource
+   - 2x RelationManagers:
+     - TaskRelationManager - dla tabeli z zadaniami w widoku projektu
+     - MemberRelationManager - dla tabeli z uczestnikami w widoku projektu
+ - TaskResource
+### Policies
+ - ProjectPolicy - reguły dostępu do działań na projektach
+ - TaskPolicy - reguły dostępu do działań na zadaniach
+
+### Pages
+ - dodatkowe 2 podstrony z dedykowanymi prostymi widokami:
+   - AddMember - formularz zapraszania członka projektu (po adresie e-mail) - dostępny z poziomu tabeli z uczestnikami w konkretnym projekcie
+   - Invitations - widok zaproszeń dostępny z poziomu sidebara (gdzie widać też liczbę zaproszeń w formie badge'a) 
+
 ## Licencja
 Projekt jest udostępniany na licencji MIT.
 
