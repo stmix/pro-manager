@@ -14,4 +14,9 @@ class ProjectsUsers extends Model
         'project_id',
         'is_accepted'
     ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

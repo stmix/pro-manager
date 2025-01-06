@@ -10,12 +10,16 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Actions\EditAction;
+use Illuminate\Support\Facades\Auth;
 
 class MemberRelationManager extends RelationManager
 {
     protected static string $relationship = 'members';
+
+    protected static ?string $title = 'Uczestnicy';
 
     public function form(Forms\Form $form): Forms\Form
     {
@@ -27,21 +31,32 @@ class MemberRelationManager extends RelationManager
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('Nazwa zadania'),
-                Tables\Columns\TextColumn::make('is_accepted')->label('Status'),
+                Tables\Columns\TextColumn::make('name')->label('Nazwa użytkownika'),
+                Tables\Columns\TextColumn::make('is_accepted')->label('Status')
+                ->formatStateUsing(function ($state, $record) {
+                    $ownerId = $this->getOwnerRecord()->owner;
+                    if ($record->id === $ownerId) {
+                        return 'Właściciel';
+                    }
+                    return $state ? 'Zaakceptowane' : 'Oczekujące';
+                }),
             ])
             ->filters([])
             ->actions([
-                ViewAction::make(),
-                EditAction::make(),
+                DeleteAction::make()
+                ->authorize(fn ($record) => ($this->getOwnerRecord()->owner === Auth::user()->id || $record->id === Auth::user()->id) && $record->id != $this->getOwnerRecord()->owner ),
             ])
             ->headerActions([
-                // Możesz dodać akcje w nagłówku, np. przycisk "Dodaj zadanie"
                 Action::make('add')
                 ->label('Dodaj uczestnika')
                 ->url(fn () => route('projects.add-member', [ 'projectId' => $this->getOwnerRecord()->id ]))
-                ->icon('heroicon-o-plus'),// link do strony tworzenia zadania
+                ->icon('heroicon-o-plus'),
             ]);
+    }
+
+    public function isReadOnly(): bool
+    {
+        return false;
     }
 
     public function infolist(Infolist $infolist): Infolist

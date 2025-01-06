@@ -19,7 +19,7 @@ class Project extends Model
 
     protected static function booted()
     {
-        static::saved(function (Project $project) {
+        static::created(function (Project $project) {
             \App\Models\ProjectsUsers::create([
                 'user_id' => Auth::user()->id,
                 'project_id' => $project->id,

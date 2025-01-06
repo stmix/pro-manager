@@ -14,11 +14,22 @@ class Task extends Model
         'start_date',
         'end_date',
         'assigned_user',
-        'project_id'
+        'project_id',
+        'author',
     ];
 
     public function project()
     {
         return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function assigned()
+    {
+        return $this->belongsTo(User::class, 'assigned_user');
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author');
     }
 }

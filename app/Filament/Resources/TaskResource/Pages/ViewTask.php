@@ -16,10 +16,4 @@ class ViewTask extends ViewRecord
             Actions\EditAction::make(),
         ];
     }
-
-    public function getTitle(): string
-    {
-        return 'Podgląd zadania';
-    }
-
 }

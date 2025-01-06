@@ -16,11 +16,12 @@ return new class extends Migration
             $table->integer('number');
             $table->string('name');
             $table->string('description', 10000);
-            $table->string('status')->required();
+            $table->string('status');
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->foreignId('assigned_user')->nullable()->default(null)->constrained('users')->onDelete('cascade');
-            $table->foreignId('project_id')->references('id')->on('projects');
+            $table->foreignId('project_id')->references('id')->on('projects')->onDelete('cascade');
+            $table->foreignId('author')->required()->constrained('users');
             $table->timestamps();
         });
     }
