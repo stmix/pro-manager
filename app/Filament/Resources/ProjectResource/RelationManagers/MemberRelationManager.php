@@ -43,8 +43,24 @@ class MemberRelationManager extends RelationManager
             ])
             ->filters([])
             ->actions([
-                DeleteAction::make()
-                ->authorize(fn ($record) => ($this->getOwnerRecord()->owner === Auth::user()->id || $record->id === Auth::user()->id) && $record->id != $this->getOwnerRecord()->owner ),
+                Action::make('remove')
+                ->label('Usuń z projektu')
+                ->action(function ($record) {
+                    $this->getOwnerRecord()
+                        ->members()
+                        ->detach($record->id);
+                    
+                    $this->getOwnerRecord()
+                        ->tasks()
+                        ->where('assigned_user', $record->id)
+                        ->update(['assigned_user' => null]);
+                })
+                ->requiresConfirmation()
+                ->authorize(fn ($record) => 
+                    ($this->getOwnerRecord()->owner === Auth::user()->id || $record->id === Auth::user()->id) 
+                    && $record->id != $this->getOwnerRecord()->owner
+                )
+                ->icon('heroicon-o-trash'),
             ])
             ->headerActions([
                 Action::make('add')

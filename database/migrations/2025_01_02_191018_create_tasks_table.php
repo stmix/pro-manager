@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('number');
             $table->string('name');
             $table->string('description', 10000);
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->foreignId('assigned_user')->nullable()->default(null)->constrained('users')->onDelete('cascade');
